@@ -1,0 +1,269 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+title: "Stat 401 (Spring 2020) - Project 3"
+author: "Jason Park/116333818"
+output:
+  html_document:https://github.com/jasonpark9001/R_Project.git
+    number_sections: yes
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+1 Loading the Dataset - 30 pts
+From the library `datasets', you will need to load the dataset `mtcars'. Take a moment to
+explore the dataset.
+1. Use `?mtcars' to explore the information about various columns in the dataset.
+
+```{r}
+ library(dplyr)
+library(datasets)
+data(mtcars)
+```
+
+#2. Use `head' and `names' to explore the rst few rows of the dataset and to #explore the
+#dierent rows.
+```{r}
+head(mtcars)
+names(mtcars)
+```
+
+#3. Use `View' to view the complete data set.
+```{r}
+View(mtcars)
+```
+#4. Classify each of the variables (ie is the columns) into quantitative or qualitative vari-
+#ables.
+```{r}
+
+cyl_4 <- filter(mtcars, cyl == '4')
+cyl_8 <- filter(mtcars, cyl == '8')
+automatic <-  filter(mtcars, am == '0')
+manual <- filter(mtcars, am == '1')
+```
+
+2 Hypothesis Testing - 30 pts
+In this section we will perform two Hypothesis Tests.
+1. Test if there is any signicant dierence between the mean horsepower for cars with automatic or manual transmission.
+#2.1 a) filter command to get two subsets of dataset 
+
+
+```{r}
+x_horse_auto <- automatic$hp  # automatic cars' hp subset
+y_horse_manual <- manual$hp   # manual cars' hp subset
+#x_bar and y_ bar
+x_1 <- mean(x_horse_auto)
+y_1 <- mean(y_horse_manual)
+x_bar <- mean(x_horse_auto)
+y_bar <- mean(y_horse_manual)
+null_0 <- 0
+m <- 19
+n <- 13
+sd1_bar <- sd(x_horse_auto)
+sd2_bar <- sd(y_horse_manual)
+
+#b)assumption: null hypothesis, hp0 ;mu1 - mu2 = 0
+#c) alternative hypothesis, hpa ; mu1 - mu2 =/ 0
+#d)test statistics & calculate df
+t_statistic_two_sample <- function(x_bar, y_bar, null_0, sd1_bar, sd2_bar, m, n){
+  (x_bar - y_bar - null_0)/ sqrt((sd1_bar^2)/m + (sd2_bar^2/n))
+  
+}
+ 
+df_up_part <-  ((sd1_bar)^2/m + (sd2_bar)^2/n)^2
+df_down_part <- ((sd1_bar)^2/m)^2/(m-1) + ((sd2_bar)^2/n)^2/(n-1) 
+df_pre <- df_up_part / df_down_part
+df_pre
+df_real <- floor(df_pre)
+df_real
+#e) calculate the t_stat
+t_horse_pwr<- t_statistic_two_sample(x_bar, y_bar, null_0, sd1_bar, sd2_bar, m, n)
+
+#f) p-value with significan level = 0.05
+alpha <- 0.05
+Pvalue_t_twoside <- function(t, df){
+  2*pt(abs(t), df, lower.tail = FALSE)
+}
+
+p_val_hor_power <- Pvalue_t_twoside(t_horse_pwr, df_real)
+p_val_hor_power
+
+# g) conclusion
+result <- p_val_hor_power > alpha
+result
+#since p_val two-smple t test is greater than significant value(alpha= 0.05), 
+#the null hypothesis is fail to reject. 
+# we have enough envidence that the mean value of horse power from manual and automatic cars
+# are not different. 
+```
+
+
+
+#2.2
+#2. Test if there is any signican dierence between the average miles per gallon for cars
+#equipped with 4 or 8 cylinders.
+#2.2 a) filter command to get two subsets of dataset 
+```{r}
+
+cyl_4 <- filter(mtcars, cyl == '4')
+cyl_8 <- filter(mtcars, cyl == '8')
+x_cyl_4 <- cyl_4$mpg # 4 cylinders cars' mpg subset
+y_cyl_8 <- cyl_8$mpg   # 4 cylinders cars' mpg subset
+```
+
+#x_bar and y_ bar and other necessary information sd1_bar & sd2_bar, m,n
+```{r}
+
+x_bar_cyl <- mean(x_cyl_4)
+y_bar_cyl <- mean(y_cyl_8)
+null_0 <- 0
+m_cyl <- 11
+n_cyl <- 14
+sd1_cyl_bar <- sd(x_cyl_4)
+sd2_cyl_bar <- sd(y_cyl_8)
+sd1_cyl_bar
+sd2_cyl_bar
+
+```
+#b)assumption: null hypothesis, hp0 ;mu1 - mu2 = 0
+#c) alternative hypothesis, hpa ; mu1 - mu2 =/ 0
+#d)test statistics & calculate df
+```{r}
+
+t_statistic_two_sample <- function(x_bar, y_bar, null_0, sd1_bar, sd2_bar, m, n){
+  (x_bar - y_bar - null_0)/ sqrt((sd1_bar^2)/m + (sd2_bar^2/n))
+  
+}
+
+df_up_part_cyl <-  ((sd1_cyl_bar)^2/m_cyl + (sd2_cyl_bar)^2/n_cyl)^2
+df_down_part_cyl <- ((sd1_cyl_bar)^2/m_cyl)^2/(m_cyl-1) + ((sd2_cyl_bar)^2/n_cyl)^2/(n_cyl-1) 
+df_pre_cyl <- df_up_part_cyl / df_down_part_cyl
+df_pre_cyl
+df_real_cyl <- floor(df_pre_cyl)
+df_real_cyl
+
+```
+#e) calculate the t_stat
+```{r}
+t_cyl_mpg<- t_statistic_two_sample(x_bar_cyl, y_bar_cyl, null_0, sd1_cyl_bar, sd2_cyl_bar, m_cyl, n_cyl)
+t_cyl_mpg
+
+```
+
+#f) p-value with significan level = 0.05
+```{r}
+
+alpha <- 0.05
+Pvalue_t_twoside <- function(t, df){
+  2*pt(abs(t), df, lower.tail = FALSE)
+}
+
+p_val_cyl_mpg <- Pvalue_t_twoside(t_cyl_mpg, df_real_cyl)
+p_val_cyl_mpg
+
+```
+# g) conclusion
+```{r}
+result_mpg <- p_val_cyl_mpg > alpha
+result_mpg
+diff_alpha_0.01 <- 0.01
+result_mpg_0.01 <- p_val_cyl_mpg > diff_alpha_0.01
+result_mpg_0.01
+
+
+```
+
+#the p-value = 0 is less than significant value 0.05 nor 0.01
+# null hypothesis h0 is rejected.
+#We can conclude that the treu average mpg from 4 cylinder cars and 8 cylinder cars #aredifferent. 
+
+
+
+
+#3 Linear Regression 
+#Form a new dataset, whose colums are exactly the quantitative columns of `mtcars'.
+
+#1. Use the `plot' function to view simultaneous scatterplots. Then use the correlation
+#function dened in class, to identify all pairs of variable that suggest a possiblity of a
+#strong linear relationship.
+```{r}
+
+x_4cyl_mpg <- cyl_4$mpg
+y_4cyl_hp <- cyl_4$hp
+z_4cyl_wt <- cyl_4$wt
+plot(x_4cyl_mpg, y_4cyl_hp, col = 'red')# no significant relationship
+plot(x_4cyl_mpg, z_4cyl_wt, col = 'blue')#...
+x_manu_mpg <- manual$mpg
+y_manu_hp <- manual$hp
+plot(x_manu_mpg, y_manu_hp, col = 'red')#somewhat negative relationship
+z_manu_wt <- manual$wt
+plot(x_manu_mpg, z_manu_wt, col = 'blue')# good negative relationship
+
+u_manu_dis <- manual$disp
+plot(y_manu_hp, u_manu_dis, col = 'red')
+```
+
+
+# corr function
+```{r}
+
+s_xx <- function(x){
+  sum(x*x) - ((sum(x))^2) / length(x)
+}
+
+s_xy <-function(x,y){
+  sum(x*y) - (sum(x)*sum(y))/length(x)
+}                                                   
+s_yy <- function(y){
+  sum(y*y) - ((sum(y))^2) / length(y)
+}
+
+corr <- function(x,y){
+  s_xy(x,y)/ (sqrt(s_xx(x))*sqrt(s_xx(y)))
+}
+corr_manual <- corr(x_manu_mpg, z_manu_wt)
+corr_manual
+
+corr_horpwr_disp <- corr(y_manu_hp, u_manu_dis)
+corr_horpwr_disp # since corr_horpwr_disp is 0.9240353 thus there is strong
+```
+
+#positive relationship between horse power and displacement
+#since correlation coefficient, r is -.9089, it shows strong negative relationship
+# between mpg and horser power of automobin among manual cars.
+
+
+#2. Choose two pairs of your choice that suggest strong linear relationship, 
+#for each of these pairs identify what your explanatory and response variables 
+#will be.
+#Either using the `lm' function or the functions developed in class, 
+#estimate the model parameters for the simple linear regression for both of these pairs.
+
+```{r}
+
+linearModel_mpg_hp <- lm(mpg~hp, mtcars)
+linearModel_mpg_hp
+
+linearModel_horpwr_disp <- lm(hp~disp, mtcars)
+```
+
+
+#3. interpret the slope parameter estimates that you have computed appropriately.
+#b_0 = 30.09886 and # b_1 = -0.06823
+```{r}
+
+linearModel_mpg_hp
+linearModel_horpwr_disp
+```
+
+# b_0 45.7345 and b_1 0.4376
+
+
+
+
+
+
+
+
